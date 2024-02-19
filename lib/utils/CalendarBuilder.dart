@@ -19,12 +19,12 @@ const WeekPageInitialIndex = 5000;
 class CalendarBuilder {
   CalendarBuilder._();
 
-  static DateTime selectedDate;
+  static DateTime? selectedDate;
 
   //1900-2100;日历页数
   static final int count = (EndYear - StartYear) * 12;
 
-  static CalendarBuilder _instance;
+  static CalendarBuilder? _instance;
 
   factory CalendarBuilder() => _getInstance();
 
@@ -57,14 +57,14 @@ class CalendarBuilder {
       _cache[index] = _buildData(index, dateTime);
     }
 
-    CalendarPagerItemBean bean = _cache[index];
-    return bean;
+    CalendarPagerItemBean? bean = _cache[index];
+    return bean!;
   }
 
   static CalendarPagerItemBean buildWeekData(DateTime startDate,
       DateTime currentDate) {
     List<CalendarItemState> beans = [];
-    CalendarItemState _bean;
+    CalendarItemState? _bean;
     int index = dateTimeToIndex(startDate);
     for (int i = 0; i < HorizontalItemCount; i++) {
       CalendarItemState b = CalendarItemState.build(startDate,
@@ -85,7 +85,10 @@ class CalendarBuilder {
       });
     }
 
-    int todayIndex = beans.indexOf(_bean);
+    int todayIndex =-1;
+    if(_bean!=null) {
+      todayIndex=beans.indexOf(_bean);
+    }
 
     return CalendarPagerItemBean(
         index: index,
@@ -108,7 +111,7 @@ class CalendarBuilder {
     final days = DateTime(dateTime.year, dateTime.month + 1, 0).day;
     DateTime startWeekDay = DateTime(dateTime.year, dateTime.month, 1);
     DateTime endWeekDay = DateTime(dateTime.year, dateTime.month, days);
-    CalendarItemState _bean;
+    CalendarItemState? _bean;
     for (int i = 1; i <= days; i++) {
       CalendarItemState b = CalendarItemState.build(
         dateTime,
@@ -135,7 +138,11 @@ class CalendarBuilder {
       beans[i].index = i;
     }
 
-    int todayIndex = beans.indexOf(_bean);
+
+    int todayIndex =-1;
+    if(_bean!=null) {
+      todayIndex =beans.indexOf(_bean);
+    }
 
     return CalendarPagerItemBean(
         index: index,

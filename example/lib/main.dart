@@ -24,14 +24,14 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key}) : super(key: key);
+  MyHomePage({Key? key}) : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
-  CalendarController calendarController;
+  late CalendarController calendarController;
 
   @override
   void initState() {
@@ -42,18 +42,22 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: true,
+        title: Text("calendar"),
+      ),
       body: Calendar(
         //the controller to control Calendar expand shrink jumpToTargetDate
         calendarController: calendarController,
         //it also be used to GridAxisSpacing
-        backgroundColor: Colors.grey,
+        backgroundColor: Colors.white,
         //you can close the SliverPersistentHeader by false
         //also you could use a custom SliverPersistentHeader
         //by sliverPersistentHeader,if you use is you must tell Calendar
         //the custom SliverPersistentHeader`s height
         showSliverPersistentHeader: true,
         //if the scroll is not long enough isCalendarExpanded will be invalid
-        isCalendarExpanded: true,
+        isCalendarExpanded: false,
         onItemClick: (bean) => onItemClick(bean),
         itemBuilder:
             (BuildContext context, int index, CalendarItemState bean) =>
@@ -64,7 +68,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           alignment: Alignment.center,
           child: Text(
             "${bean.day}",
-            style: TextStyle(color: Colors.black),
+            style: TextStyle(
+                color:bean.isCurrentMonth? Colors.black:Colors.grey),
           ),
         ),
         //the day will be return -1 when user select day out of current Month
@@ -83,9 +88,9 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     // Pr.t("buildView ${bean.dateTime}");
   }
 
-  Widget buildAppBar(int year, int month, int day) {
+  SliverAppBar buildAppBar(int year, int month, int day) {
     return SliverAppBar(
-      backgroundColor: Colors.transparent,
+      backgroundColor: Colors.white,
       floating: true,
       elevation: 0,
       title: Row(
@@ -118,22 +123,22 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           controller: TabController(length: 3, vsync: this),
           tabs: [
             FittedBox(
-              child: FlatButton(
-                color: Colors.grey.shade300,
+              child: OutlinedButton(
+                //color: Colors.grey.shade300,
                 child: Text("Shrink Calendar"),
                 onPressed: () => calendarController.shrink(),
               ),
             ),
             FittedBox(
-              child: FlatButton(
-                color: Colors.grey.shade300,
+              child: OutlinedButton(
+                //color: Colors.grey.shade300,
                 child: Text("Expand Calendar"),
                 onPressed: () => calendarController.expanded(),
               ),
             ),
             FittedBox(
-              child: FlatButton(
-                color: Colors.grey.shade300,
+              child: OutlinedButton(
+                //color: Colors.grey.shade300,
                 child: Text("Back Today"),
                 onPressed: () =>
                     calendarController.changeToDate(DateTime.now()),
@@ -145,11 +150,13 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       SliverList(
           delegate: SliverChildBuilderDelegate(
               (BuildContext context, int index) => Container(
-                    height: 200,
-                    color: Colors.transparent,
+
+                    height: 80,
+                    alignment: Alignment.center,
+                    color: Colors.primaries[index%Colors.primaries.length],
                     child: Text("$index"),
                   ),
-              childCount: 10)),
+              childCount: 20)),
     ];
   }
 }

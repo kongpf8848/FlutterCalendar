@@ -15,7 +15,7 @@ class CalendarItemState {
   int index = -1;
 
   CalendarItemState({
-    this.dateTime,
+    required this.dateTime,
     this.isCurrentMonth = true,
     this.isToday = false,
   }) : assert(dateTime != null);
@@ -25,7 +25,7 @@ class CalendarItemState {
   int get day => dateTime.day;
 
   static CalendarItemState build(DateTime dateTime,
-      {int day, bool isCurrentMonth = true}) {
+      {int? day, bool isCurrentMonth = true}) {
     bool isToday = false;
     if (day != null) {
       final now = DateTime.now();

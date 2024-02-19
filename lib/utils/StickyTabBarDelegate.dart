@@ -7,7 +7,7 @@ class SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
   final double height;
 
   SliverTabBarDelegate(
-      {@required this.child, this.height = SliverTabBarHeight});
+      {required this.child, this.height = SliverTabBarHeight});
 
   @override
   Widget build(

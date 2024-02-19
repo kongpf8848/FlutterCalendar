@@ -13,29 +13,29 @@ GlobalKey<_CalendarState> calendarKey = GlobalKey();
 
 class Calendar extends StatefulWidget {
   final double childAspectRatio;
-  final Widget child;
+  final Widget? child;
   final CalendarItemBuilder itemBuilder;
-  final SliverAppBarBuilder sliverAppBarBuilder;
+  final SliverAppBarBuilder? sliverAppBarBuilder;
   final isCalendarExpanded;
   final Color backgroundColor;
   final ValueChanged<CalendarItemState> onItemClick;
   final List<Widget> slivers;
   final CalendarController calendarController;
-  final SliverPersistentHeader sliverPersistentHeader;
+  final SliverPersistentHeader? sliverPersistentHeader;
   final bool showSliverPersistentHeader;
-  final double sliverTabBarHeight;
+  final double? sliverTabBarHeight;
 
   const Calendar({
-    Key key,
+    Key? key,
     this.childAspectRatio = ChildAspectRatio,
     this.child,
     this.isCalendarExpanded = true,
     this.backgroundColor = Colors.white,
-    @required this.itemBuilder,
+    required this.itemBuilder,
     this.sliverAppBarBuilder,
-    this.onItemClick,
+    required this.onItemClick,
     this.slivers = const [],
-    this.calendarController,
+    required this.calendarController,
     this.showSliverPersistentHeader = true,
     this.sliverPersistentHeader,
     this.sliverTabBarHeight,
@@ -53,31 +53,31 @@ class Calendar extends StatefulWidget {
 }
 
 class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
-  double toolbarHeight;
-  double screenSize;
+  late double toolbarHeight;
+  double? screenSize;
 
-  TabController tabController;
+  late TabController tabController;
   ScrollController mainController = ScrollController();
   ScrollController gridController = ScrollController();
-  PageController pageController;
-  PageController weekPageController;
-  CalendarController calendarController;
+  late PageController pageController;
+  late PageController weekPageController;
+  late CalendarController calendarController;
 
   int pageIndex = 0;
 
   //滑动时锁定的pageIndex
   int lockingPageIndex = 0;
 
-  double expandedHeight;
+  late double expandedHeight;
 
   //根据滑动时锁定的lockingPageIndex获取的expandedHeight
-  double lockingExpandedHeight;
+  late double lockingExpandedHeight;
 
   //防止横向滚动时 GridView缩小动画导致页面跳动
   bool isHorizontalScroll = false;
 
   //日历展开收起模式 默认展开
-  bool isCalendarExpanded;
+  late bool isCalendarExpanded;
 
   double flexibleSpaceHeight = 0.0;
 
@@ -88,7 +88,7 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
 
   int get year => StartYear + pageIndex ~/ 12;
 
-  int _day;
+  late int _day;
 
   int get day => _day;
 
@@ -96,9 +96,9 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
   int get lines => selectItemData.beans.length ~/ HorizontalItemCount;
 
   //收起时的时间
-  DateTime shrinkDateTime;
+  late DateTime shrinkDateTime;
 
-  ValueChanged<CalendarItemState> _onItemClick;
+  ValueChanged<CalendarItemState>? _onItemClick;
 
   double sliverTabBarHeight = SliverTabBarHeight;
 
@@ -149,7 +149,7 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
     calendarController?.addListener(_onControl);
 
     if (widget.sliverPersistentHeader != null) {
-      sliverTabBarHeight = widget.sliverTabBarHeight;
+      sliverTabBarHeight = widget.sliverTabBarHeight!;
     }
 
     if (!widget.showSliverPersistentHeader) {
@@ -198,7 +198,7 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
           .of(context)
           .size
           .width;
-      toolbarHeight = (screenSize -
+      toolbarHeight = (screenSize! -
           GridHorizontalPadding * 2 -
           GridSpacing * (HorizontalItemCount - 1)) /
           HorizontalItemCount /
@@ -225,11 +225,11 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
           controller: mainController,
           slivers: [
             if (widget.sliverAppBarBuilder != null)
-              widget.sliverAppBarBuilder(context, year, month, day),
+              widget.sliverAppBarBuilder!(context, year, month, day),
             if (widget.showSliverPersistentHeader)
               widget.sliverPersistentHeader == null
                   ? _buildSliverPersistentHeader()
-                  : widget.sliverPersistentHeader,
+                  : widget.sliverPersistentHeader!,
             _buildCalendar(),
           ]
             ..addAll(widget.slivers),
@@ -329,7 +329,7 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
                       shrinkDateTime.add(Duration(
                           days: HorizontalItemCount *
                               (i - WeekPageInitialIndex))),
-                      selectItemData.currentDate);
+                      selectItemData.currentDate!);
                   return CalendarPagerItem(
                     onItemClick: _onItemClick,
                     backgroundColor: widget.backgroundColor,
@@ -366,18 +366,19 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
     final bean = CalendarBuilder.buildWeekData(
         shrinkDateTime.add(
             Duration(days: HorizontalItemCount * (i - WeekPageInitialIndex))),
-        selectItemData.currentDate);
-    CalendarItemState state;
+        selectItemData.currentDate!);
+    late CalendarItemState state;
     try {
       state = bean.beans.firstWhere((element) =>
-      element.dateTime.day == CalendarBuilder.selectedDate.day &&
-          element.dateTime.month == CalendarBuilder.selectedDate.month
-          && element.dateTime.year == CalendarBuilder.selectedDate.year);
+      element.dateTime.day == CalendarBuilder.selectedDate?.day &&
+          element.dateTime.month == CalendarBuilder.selectedDate?.month
+          && element.dateTime.year == CalendarBuilder.selectedDate?.year);
     } catch (e) {}
 
     if (state != null) {
       pageIndex = CalendarBuilder.dateTimeToIndex(state.dateTime);
-    } else {
+    } else
+    {
       pageIndex = bean.index;
     }
 
@@ -467,7 +468,7 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
 
     isHorizontalScroll = true;
     final move = pageController.offset;
-    final pageOffset = lockingPageIndex * screenSize;
+    final pageOffset = lockingPageIndex * (screenSize??0);
     int offset;
     //左滑
     if (move > pageOffset) {
@@ -487,7 +488,7 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
     if (newHeight != expandedHeight) {
       final addPart = (newHeight - lockingExpandedHeight) *
           ((move - pageOffset).abs()) /
-          screenSize;
+          (screenSize ?? 1);
       expandedHeight = lockingExpandedHeight + addPart;
       setState(() {});
     }
@@ -502,13 +503,13 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
             labelColor: Colors.transparent,
             controller: tabController,
             tabs: [
-              _buildTitleDate("周日"),
-              _buildTitleDate("周一"),
-              _buildTitleDate("周二"),
-              _buildTitleDate("周三"),
-              _buildTitleDate("周四"),
-              _buildTitleDate("周五"),
-              _buildTitleDate("周六"),
+              _buildTitleDate("日"),
+              _buildTitleDate("一"),
+              _buildTitleDate("二"),
+              _buildTitleDate("三"),
+              _buildTitleDate("四"),
+              _buildTitleDate("五"),
+              _buildTitleDate("六"),
             ],
           )),
     );

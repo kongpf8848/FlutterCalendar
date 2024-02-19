@@ -9,15 +9,15 @@ typedef CalendarItemBuilder = Widget Function(
 class CalendarPagerItem extends StatefulWidget {
   final CalendarPagerItemBean bean;
   final double childAspectRatio;
-  final ScrollController controller;
+  final ScrollController? controller;
   final CalendarItemBuilder itemBuilder;
   final Color backgroundColor;
-  final ValueChanged<CalendarItemState> onItemClick;
+  final ValueChanged<CalendarItemState>? onItemClick;
 
-  const CalendarPagerItem({Key key,
-    @required this.itemBuilder,
+  const CalendarPagerItem({Key? key,
+    required this.itemBuilder,
     this.onItemClick,
-    this.bean,
+    required this.bean,
     this.childAspectRatio = ChildAspectRatio,
     this.backgroundColor = Colors.white,
     this.controller})
@@ -31,7 +31,7 @@ class CalendarPagerItem extends StatefulWidget {
 
 class _CalendarPagerItemState extends State<CalendarPagerItem> {
   List<CalendarItemState> beans = [];
-  CalendarPagerItemBean bean;
+  late CalendarPagerItemBean bean;
   bool init = true;
   final CalendarItemBuilder itemBuilder;
 
@@ -68,10 +68,10 @@ class _CalendarPagerItemState extends State<CalendarPagerItem> {
                 CalendarItemState b = beans[index];
                 CalendarBuilder.selectedDate = b.dateTime;
                 if (widget.onItemClick != null) {
-                  widget.onItemClick(b);
+                  widget.onItemClick!(b);
                 }
                 if (bean.onClick != null) {
-                  bean.onClick(bean, b);
+                  bean.onClick!(bean, b);
                 }
               },
             );
@@ -84,14 +84,14 @@ class _CalendarPagerItemState extends State<CalendarPagerItem> {
 typedef OnClick<T, E> = void Function(T t, E v);
 
 class CalendarPagerItemBean {
-  final OnClick<CalendarPagerItemBean, CalendarItemState> onClick;
+  final OnClick<CalendarPagerItemBean, CalendarItemState>? onClick;
 
   // 默认-1 表示不存在
   final int todayIndex;
   int selectedLine = 0;
   final int index;
   final List<CalendarItemState> beans;
-  final DateTime currentDate;
+  final DateTime? currentDate;
 
   CalendarPagerItemBean({
     this.beans = const [],
@@ -99,6 +99,6 @@ class CalendarPagerItemBean {
     this.onClick,
     this.todayIndex = -1,
     this.selectedLine = 0,
-    this.index,
+    required this.index,
   });
 }
