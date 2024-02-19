@@ -1,7 +1,7 @@
 //日历gridItem比例
 
-import '../CalendarPagerItem.dart';
-import 'CalendarItemState.dart';
+import 'calendar_page.dart';
+import 'calendar_item_state.dart';
 
 const double ChildAspectRatio = 152 / 220;
 const int HorizontalItemCount = 7;

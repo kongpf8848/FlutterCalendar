@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:imba_calendar/Calendar.dart';
-import 'package:imba_calendar/CalendarController.dart';
-import 'package:imba_calendar/utils/CalendarBuilder.dart';
-import 'package:imba_calendar/utils/CalendarItemState.dart';
-import 'package:imba_calendar/utils/StickyTabBarDelegate.dart';
+import 'package:imba_calendar/calendar.dart';
+import 'package:imba_calendar/calendar_controller.dart';
+import 'package:imba_calendar/calendar_state.dart';
+import 'package:imba_calendar/calendar_builder.dart';
+import 'package:imba_calendar/calendar_item_state.dart';
+import 'package:imba_calendar/calendar_sticky_delegate.dart';
 
 void main() {
   runApp(MyApp());
@@ -35,8 +36,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
   @override
   void initState() {
-    calendarController = CalendarController();
     super.initState();
+    calendarController = CalendarController();
   }
 
   @override
@@ -47,37 +48,33 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         title: Text("calendar"),
       ),
       body: Calendar(
-        //the controller to control Calendar expand shrink jumpToTargetDate
         calendarController: calendarController,
-        //it also be used to GridAxisSpacing
         backgroundColor: Colors.white,
-        //you can close the SliverPersistentHeader by false
-        //also you could use a custom SliverPersistentHeader
-        //by sliverPersistentHeader,if you use is you must tell Calendar
-        //the custom SliverPersistentHeader`s height
         showSliverPersistentHeader: true,
-        //if the scroll is not long enough isCalendarExpanded will be invalid
-        isCalendarExpanded: false,
+        calendarState: CalendarState.WEEK,
+        calendarStateChangeListener:(state){
+          debugPrint('++++++++++++calendarStateChangeListener:$state,${calendarController.calendarState}');
+        },
         onItemClick: (bean) => onItemClick(bean),
         itemBuilder:
             (BuildContext context, int index, CalendarItemState bean) =>
                 Container(
           color: bean.dateTime == CalendarBuilder.selectedDate
-              ? Colors.pinkAccent.shade100
+              ? Colors.blue
               : Colors.white,
           alignment: Alignment.center,
           child: Text(
             "${bean.day}",
             style: TextStyle(
-                color:bean.isCurrentMonth? Colors.black:Colors.grey),
+                color: bean.isCurrentMonth ? Colors.black : Colors.grey),
           ),
         ),
         //the day will be return -1 when user select day out of current Month
         // or the pager do not has select day
         // if you want a user select date then you should move to onItemClick
-        sliverAppBarBuilder:
-            (BuildContext context, int year, int month, int day) =>
-                buildAppBar(year, month, day),
+        // sliverAppBarBuilder:
+        //     (BuildContext context, int year, int month, int day) =>
+        //         buildAppBar(year, month, day),
         //to add any widgets
         slivers: _buildSlivers(),
       ),
@@ -85,7 +82,14 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   }
 
   onItemClick(CalendarItemState bean) {
-    // Pr.t("buildView ${bean.dateTime}");
+    print(
+        "onItemClick: ${bean.dateTime},${bean.isCurrentMonth},${bean.index},${calendarController.calendarState}");
+    if (calendarController.calendarState.isMonthView()) {
+      print("onItemClick22");
+      if (!bean.isCurrentMonth) {
+        calendarController.changeToDate(bean.dateTime);
+      }
+    }
   }
 
   SliverAppBar buildAppBar(int year, int month, int day) {
@@ -133,7 +137,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
               child: OutlinedButton(
                 //color: Colors.grey.shade300,
                 child: Text("Expand Calendar"),
-                onPressed: () => calendarController.expanded(),
+                onPressed: () => calendarController.expand(),
               ),
             ),
             FittedBox(
@@ -150,10 +154,9 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       SliverList(
           delegate: SliverChildBuilderDelegate(
               (BuildContext context, int index) => Container(
-
                     height: 80,
                     alignment: Alignment.center,
-                    color: Colors.primaries[index%Colors.primaries.length],
+                    color: Colors.primaries[index % Colors.primaries.length],
                     child: Text("$index"),
                   ),
               childCount: 20)),

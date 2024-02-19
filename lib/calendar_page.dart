@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'utils/CalendarBuilder.dart';
-import 'utils/CalendarItemState.dart';
+import 'calendar_builder.dart';
+import 'calendar_item_state.dart';
 
 typedef CalendarItemBuilder = Widget Function(
     BuildContext context, int index, CalendarItemState bean);

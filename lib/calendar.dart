@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:imba_calendar/calendar_delegate.dart';
 
-import 'CalendarController.dart';
-import 'utils/CalendarBuilder.dart';
-import 'utils/CalendarItemState.dart';
-import 'CalendarPagerItem.dart';
-import 'utils/StickyTabBarDelegate.dart';
+import 'calendar_controller.dart';
+import 'calendar_state.dart';
+import 'calendar_builder.dart';
+import 'calendar_item_state.dart';
+import 'calendar_page.dart';
+import 'calendar_sticky_delegate.dart';
 
 typedef SliverAppBarBuilder = SliverAppBar Function(
     BuildContext context, int year, int month, int day);
 
-GlobalKey<_CalendarState> calendarKey = GlobalKey();
+typedef CalendarStateChangeListener = void Function(CalendarState calendarState);
+
+GlobalKey<_SmartCalendarState> calendarKey = GlobalKey();
 
 class Calendar extends StatefulWidget {
   final double childAspectRatio;
   final Widget? child;
   final CalendarItemBuilder itemBuilder;
   final SliverAppBarBuilder? sliverAppBarBuilder;
-  final isCalendarExpanded;
   final Color backgroundColor;
   final ValueChanged<CalendarItemState> onItemClick;
   final List<Widget> slivers;
@@ -24,12 +27,15 @@ class Calendar extends StatefulWidget {
   final SliverPersistentHeader? sliverPersistentHeader;
   final bool showSliverPersistentHeader;
   final double? sliverTabBarHeight;
+  final CalendarState? calendarState;
+  final CalendarStateChangeListener? calendarStateChangeListener;
 
-  const Calendar({
+  Calendar({
     Key? key,
     this.childAspectRatio = ChildAspectRatio,
     this.child,
-    this.isCalendarExpanded = true,
+    this.calendarState,
+    this.calendarStateChangeListener,
     this.backgroundColor = Colors.white,
     required this.itemBuilder,
     this.sliverAppBarBuilder,
@@ -47,12 +53,12 @@ class Calendar extends StatefulWidget {
         super(key: key);
 
   @override
-  State<StatefulWidget> createState() {
-    return _CalendarState();
+  State<Calendar> createState() {
+    return _SmartCalendarState();
   }
 }
 
-class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
+class _SmartCalendarState extends State<Calendar> with TickerProviderStateMixin,CalendarDelegate {
   late double toolbarHeight;
   double? screenSize;
 
@@ -77,7 +83,7 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
   bool isHorizontalScroll = false;
 
   //日历展开收起模式 默认展开
-  late bool isCalendarExpanded;
+  CalendarState _calendarState=CalendarState.MONTH;
 
   double flexibleSpaceHeight = 0.0;
 
@@ -102,6 +108,7 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
 
   double sliverTabBarHeight = SliverTabBarHeight;
 
+
   CalendarPagerItemBean get selectItemData {
     return _buildItemData(pageIndex);
   }
@@ -117,7 +124,7 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
     DateTime now = DateTime.now();
     pageIndex = CalendarBuilder.dateTimeToIndex(now);
 
-    isCalendarExpanded = widget.isCalendarExpanded;
+    _calendarState = widget.calendarState ?? CalendarState.MONTH;
 
     _day = now.day;
 
@@ -146,7 +153,8 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
     };
 
     calendarController = widget.calendarController;
-    calendarController?.addListener(_onControl);
+    calendarController.attach(this);
+
 
     if (widget.sliverPersistentHeader != null) {
       sliverTabBarHeight = widget.sliverTabBarHeight!;
@@ -161,33 +169,14 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    calendarController?.removeListener(_onControl);
+    calendarController.dispose();
     super.dispose();
   }
 
-  void _onControl() {
-    switch (calendarController.controllerState) {
-      case CalendarControllerState.expanded:
-        _expandedCalender();
-        break;
-      case CalendarControllerState.shrink:
-        _shrinkCalender();
-        break;
-      case CalendarControllerState.changeDate:
-        _changeDate(calendarController.date);
-        break;
-    }
-  }
+
 
   @override
   void didUpdateWidget(Calendar oldWidget) {
-    if (calendarController != oldWidget.calendarController) {
-      if (oldWidget.calendarController != null) {
-        oldWidget.calendarController.removeListener(_onControl);
-        calendarController = oldWidget.calendarController;
-        calendarController.addListener(_onControl);
-      }
-    }
     super.didUpdateWidget(oldWidget);
   }
 
@@ -206,7 +195,7 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
       expandedHeight = _getExpandHeight(lines);
       lockingExpandedHeight = expandedHeight;
 
-      if (!isCalendarExpanded) {
+      if (_calendarState.isWeekView()) {
         Future.delayed(Duration.zero, () {
           mainController.jumpTo(_getExpandHeight(lines - 1) +
               kToolbarHeight +
@@ -236,53 +225,6 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
         ),
       ),
     );
-  }
-
-  _changeDate(DateTime dateTime) {
-    CalendarBuilder.selectedDate =
-        DateTime(dateTime.year, dateTime.month, dateTime.day);
-    if (!isCalendarExpanded) {
-      int num = 0;
-      if (dateTime.isBefore(shrinkDateTime)) {
-        //往前减一周
-        num = -1;
-      }
-      Duration du = dateTime.difference(shrinkDateTime);
-      num += du.inDays ~/ 7;
-      weekPageController.jumpToPage(WeekPageInitialIndex + num);
-    }
-
-    // if (isCalendarExpanded) {
-    pageIndex = CalendarBuilder.dateTimeToIndex(dateTime);
-    pageController.jumpToPage(pageIndex);
-    expandedHeight = _getExpandHeight(lines);
-    try {
-      final CalendarItemState state = selectItemData.beans.firstWhere(
-              (element) => element.dateTime == CalendarBuilder.selectedDate);
-      selectItemData.selectedLine = selectItemData.beans.indexOf(state) ~/ 7;
-    } catch (e) {}
-    setState(() {});
-    _updateDay(selectItemData);
-  }
-
-  _expandedCalender() {
-    if (mainController != null &&
-        mainController.hasClients &&
-        mainController.offset != 0) {
-      mainController.animateTo(0,
-          duration: Duration(milliseconds: 300), curve: Curves.easeOutQuad);
-    }
-  }
-
-  _shrinkCalender() {
-    double height =
-        _getExpandHeight(lines - 1) + kToolbarHeight + sliverTabBarHeight;
-    if (mainController != null &&
-        mainController.hasClients &&
-        height != mainController.offset) {
-      mainController.animateTo(height,
-          duration: Duration(milliseconds: 300), curve: Curves.easeOutQuad);
-    }
   }
 
   Widget _buildFlexibleSpace() {
@@ -320,7 +262,7 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
               },
               itemCount: CalendarBuilder.count,
             ),
-            if (!isCalendarExpanded)
+            if (_calendarState.isWeekView())
               PageView.builder(
                 controller: weekPageController,
                 onPageChanged: (i) => _onWeekPageChange(i),
@@ -434,35 +376,35 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
       int index = selectItemData.selectedLine * HorizontalItemCount;
       shrinkDateTime = selectItemData.beans[index].dateTime;
       weekPageController = PageController(initialPage: WeekPageInitialIndex);
-      isCalendarExpanded = false;
+      onCalendarStateChange(CalendarState.WEEK);
       setState(() {});
     } else {
-      isCalendarExpanded = true;
+      onCalendarStateChange(CalendarState.MONTH);
     }
     if (flexibleSpaceHeight > toolbarHeight + GridVerticalPadding * 2 &&
         flexibleSpaceHeight < toolbarHeight * lines / 2 + GridVerticalPadding) {
-      _shrinkCalender();
+      shrink();
     } else if (flexibleSpaceHeight > toolbarHeight * lines / 2 &&
         flexibleSpaceHeight < toolbarHeight * lines) {
-      _expandedCalender();
+      expand();
     }
     _updateDay(selectItemData);
   }
 
   _onMainScrolling() {
-    if (!isCalendarExpanded &&
+    if (_calendarState.isWeekView() &&
         mainController.offset >
             _getExpandHeight(lines - 1) / 2 +
                 kToolbarHeight +
                 sliverTabBarHeight) {
-      isCalendarExpanded = true;
+      onCalendarStateChange(CalendarState.MONTH);
       expandedHeight = _getExpandHeight(lines);
       setState(() {});
     }
   }
 
   _onPageScrolling() {
-    if (!isCalendarExpanded) {
+    if (_calendarState.isWeekView()) {
       return;
     }
 
@@ -524,4 +466,76 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
       ),
     );
   }
+
+  onCalendarStateChange(CalendarState state){
+    if(_calendarState!=state){
+      this._calendarState=state;
+      if(widget.calendarStateChangeListener!=null){
+        widget.calendarStateChangeListener!(state);
+      }
+    }
+  }
+
+  @override
+  void changeToDate(DateTime dateTime) {
+    CalendarBuilder.selectedDate =
+        DateTime(dateTime.year, dateTime.month, dateTime.day);
+    if (_calendarState.isWeekView()) {
+      int num = 0;
+      if (dateTime.isBefore(shrinkDateTime)) {
+        //往前减一周
+        num = -1;
+      }
+      Duration du = dateTime.difference(shrinkDateTime);
+      num += du.inDays ~/ 7;
+      weekPageController.jumpToPage(WeekPageInitialIndex + num);
+    }
+
+    // if (isCalendarExpanded) {
+    pageIndex = CalendarBuilder.dateTimeToIndex(dateTime);
+    pageController.jumpToPage(pageIndex);
+    expandedHeight = _getExpandHeight(lines);
+    try {
+      final CalendarItemState state = selectItemData.beans.firstWhere(
+              (element) => element.dateTime == CalendarBuilder.selectedDate);
+      selectItemData.selectedLine = selectItemData.beans.indexOf(state) ~/ 7;
+    } catch (e) {}
+    setState(() {});
+    _updateDay(selectItemData);
+  }
+
+  @override
+  void shrink() {
+    double height =
+        _getExpandHeight(lines - 1) + kToolbarHeight + sliverTabBarHeight;
+    if (mainController != null &&
+        mainController.hasClients &&
+        height != mainController.offset) {
+      mainController.animateTo(height,
+          duration: Duration(milliseconds: 300), curve: Curves.easeOutQuad);
+    }
+  }
+
+  @override
+  void expand() {
+    debugPrint('+++++++++++expand,offset:${mainController.offset}');
+    if (mainController != null &&
+        mainController.hasClients &&
+        mainController.offset != 0) {
+      mainController.animateTo(0,
+          duration: Duration(milliseconds: 300), curve: Curves.easeOutQuad);
+    }
+  }
+
+  @override
+  void nextPage(Duration duration, Curve curve) {
+  }
+
+  @override
+  void previousPage(Duration duration, Curve curve) {
+  }
+
+  @override
+  CalendarState get calendarState => _calendarState;
+
 }
