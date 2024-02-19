@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../smart_calendar.dart';
 
-
-typedef CalendarStateChangeListener = void Function(CalendarState calendarState);
+typedef CalendarStateChangeListener = void Function(
+    CalendarState calendarState);
 
 GlobalKey<_SmartCalendarState> calendarKey = GlobalKey();
 
@@ -35,24 +35,19 @@ class Calendar extends StatefulWidget {
     this.showSliverPersistentHeader = true,
     this.sliverPersistentHeader,
     this.sliverTabBarHeight,
-  })
-      :
-  //if you want a custom sliverPersistentHeader you should tell me the widget height
-        assert((sliverPersistentHeader != null && sliverTabBarHeight != null) ||
+  })  : assert((sliverPersistentHeader != null && sliverTabBarHeight != null) ||
             (sliverPersistentHeader == null && sliverTabBarHeight == null)),
         super(key: key);
 
   @override
-  State<Calendar> createState() {
-    return _SmartCalendarState();
-  }
+  State<Calendar> createState() => _SmartCalendarState();
 }
 
-class _SmartCalendarState extends State<Calendar> with TickerProviderStateMixin,CalendarDelegate {
+class _SmartCalendarState extends State<Calendar>
+    with TickerProviderStateMixin, CalendarDelegate {
   late double toolbarHeight;
   double? screenSize;
 
-  late TabController tabController;
   ScrollController mainController = ScrollController();
   ScrollController gridController = ScrollController();
   late PageController pageController;
@@ -73,7 +68,7 @@ class _SmartCalendarState extends State<Calendar> with TickerProviderStateMixin,
   bool isHorizontalScroll = false;
 
   //日历展开收起模式 默认展开
-  CalendarState _calendarState=CalendarState.MONTH;
+  CalendarState _calendarState = CalendarState.MONTH;
 
   double flexibleSpaceHeight = 0.0;
 
@@ -98,7 +93,6 @@ class _SmartCalendarState extends State<Calendar> with TickerProviderStateMixin,
 
   double sliverTabBarHeight = SliverTabBarHeight;
 
-
   CalendarPagerItemBean get selectItemData {
     return _buildItemData(pageIndex);
   }
@@ -109,8 +103,7 @@ class _SmartCalendarState extends State<Calendar> with TickerProviderStateMixin,
 
   @override
   void initState() {
-    this.tabController =
-        TabController(length: HorizontalItemCount, vsync: this);
+
     DateTime now = DateTime.now();
     pageIndex = CalendarBuilder.dateTimeToIndex(now);
 
@@ -162,8 +155,6 @@ class _SmartCalendarState extends State<Calendar> with TickerProviderStateMixin,
     super.dispose();
   }
 
-
-
   @override
   void didUpdateWidget(Calendar oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -172,13 +163,10 @@ class _SmartCalendarState extends State<Calendar> with TickerProviderStateMixin,
   @override
   Widget build(BuildContext context) {
     if (screenSize == null) {
-      screenSize = MediaQuery
-          .of(context)
-          .size
-          .width;
+      screenSize = MediaQuery.of(context).size.width;
       toolbarHeight = (screenSize! -
-          GridHorizontalPadding * 2 -
-          GridSpacing * (HorizontalItemCount - 1)) /
+              GridHorizontalPadding * 2 -
+              GridSpacing * (HorizontalItemCount - 1)) /
           HorizontalItemCount /
           widget.childAspectRatio;
       expandedHeight = _getExpandHeight(lines);
@@ -199,17 +187,12 @@ class _SmartCalendarState extends State<Calendar> with TickerProviderStateMixin,
           _checkScroll(notification);
           return false;
         },
-        child: CustomScrollView(
-          controller: mainController,
-          slivers: [
-            if (widget.showSliverPersistentHeader)
-              widget.sliverPersistentHeader == null
-                  ? _buildSliverPersistentHeader()
-                  : widget.sliverPersistentHeader!,
-            _buildCalendar(),
-            ...widget.slivers
-          ]
-        ),
+        child: CustomScrollView(controller: mainController, slivers: [
+          if (widget.showSliverPersistentHeader && widget.sliverPersistentHeader!=null)
+            widget.sliverPersistentHeader!,
+          _buildCalendar(),
+          ...widget.slivers
+        ]),
       ),
     );
   }
@@ -219,14 +202,14 @@ class _SmartCalendarState extends State<Calendar> with TickerProviderStateMixin,
       builder: (c, b) {
         flexibleSpaceHeight = b.biggest.height;
         if (flexibleSpaceHeight <=
-            toolbarHeight * lines + GridVerticalPadding * 2 &&
+                toolbarHeight * lines + GridVerticalPadding * 2 &&
             gridController.hasClients &&
             !isHorizontalScroll) {
           gridController.jumpTo((toolbarHeight * lines +
-              GridVerticalPadding * 2 -
-              flexibleSpaceHeight) *
-              selectLine /
-              (lines - 1) +
+                      GridVerticalPadding * 2 -
+                      flexibleSpaceHeight) *
+                  selectLine /
+                  (lines - 1) +
               selectLine * GridSpacing);
         }
 
@@ -279,8 +262,8 @@ class _SmartCalendarState extends State<Calendar> with TickerProviderStateMixin,
     try {
       List<CalendarItemState> list = bean.beans
           .where((element) =>
-      element.isCurrentMonth &&
-          element.dateTime == CalendarBuilder.selectedDate)
+              element.isCurrentMonth &&
+              element.dateTime == CalendarBuilder.selectedDate)
           .toList();
       if (list.length > 0) {
         _day = list[0].dateTime.day;
@@ -299,15 +282,14 @@ class _SmartCalendarState extends State<Calendar> with TickerProviderStateMixin,
     late CalendarItemState state;
     try {
       state = bean.beans.firstWhere((element) =>
-      element.dateTime.day == CalendarBuilder.selectedDate?.day &&
-          element.dateTime.month == CalendarBuilder.selectedDate?.month
-          && element.dateTime.year == CalendarBuilder.selectedDate?.year);
+          element.dateTime.day == CalendarBuilder.selectedDate?.day &&
+          element.dateTime.month == CalendarBuilder.selectedDate?.month &&
+          element.dateTime.year == CalendarBuilder.selectedDate?.year);
     } catch (e) {}
 
     if (state != null) {
       pageIndex = CalendarBuilder.dateTimeToIndex(state.dateTime);
-    } else
-    {
+    } else {
       pageIndex = bean.index;
     }
 
@@ -397,13 +379,13 @@ class _SmartCalendarState extends State<Calendar> with TickerProviderStateMixin,
 
     isHorizontalScroll = true;
     final move = pageController.offset;
-    final pageOffset = lockingPageIndex * (screenSize??0);
+    final pageOffset = lockingPageIndex * (screenSize ?? 0);
     int offset;
     //左滑
     if (move > pageOffset) {
       offset = lockingPageIndex + 1;
     } else
-      //右滑
+    //右滑
     if (move < pageOffset) {
       offset = lockingPageIndex - 1;
     } else {
@@ -423,41 +405,10 @@ class _SmartCalendarState extends State<Calendar> with TickerProviderStateMixin,
     }
   }
 
-  Widget _buildSliverPersistentHeader() {
-    return SliverPersistentHeader(
-      pinned: true,
-      delegate: SliverTabBarDelegate(
-          child: TabBar(
-            indicatorColor: Colors.transparent,
-            labelColor: Colors.transparent,
-            controller: tabController,
-            tabs: [
-              _buildTitleDate("日"),
-              _buildTitleDate("一"),
-              _buildTitleDate("二"),
-              _buildTitleDate("三"),
-              _buildTitleDate("四"),
-              _buildTitleDate("五"),
-              _buildTitleDate("六"),
-            ],
-          )),
-    );
-  }
-
-  Widget _buildTitleDate(String date) {
-    return FittedBox(
-      child: Text(
-        date,
-        maxLines: 1,
-        style: TextStyle(color: Colors.black),
-      ),
-    );
-  }
-
-  onCalendarStateChange(CalendarState state){
-    if(_calendarState!=state){
-      this._calendarState=state;
-      if(widget.calendarStateChangeListener!=null){
+  onCalendarStateChange(CalendarState state) {
+    if (_calendarState != state) {
+      this._calendarState = state;
+      if (widget.calendarStateChangeListener != null) {
         widget.calendarStateChangeListener!(state);
       }
     }
@@ -484,7 +435,7 @@ class _SmartCalendarState extends State<Calendar> with TickerProviderStateMixin,
     expandedHeight = _getExpandHeight(lines);
     try {
       final CalendarItemState state = selectItemData.beans.firstWhere(
-              (element) => element.dateTime == CalendarBuilder.selectedDate);
+          (element) => element.dateTime == CalendarBuilder.selectedDate);
       selectItemData.selectedLine = selectItemData.beans.indexOf(state) ~/ 7;
     } catch (e) {}
     setState(() {});
@@ -515,14 +466,11 @@ class _SmartCalendarState extends State<Calendar> with TickerProviderStateMixin,
   }
 
   @override
-  void nextPage(Duration duration, Curve curve) {
-  }
+  void nextPage(Duration duration, Curve curve) {}
 
   @override
-  void previousPage(Duration duration, Curve curve) {
-  }
+  void previousPage(Duration duration, Curve curve) {}
 
   @override
   CalendarState get calendarState => _calendarState;
-
 }

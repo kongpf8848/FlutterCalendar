@@ -1,7 +1,11 @@
+import 'package:example/persistent_header_builder.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/intl.dart';
 import 'package:smart_calendar/smart_calendar.dart';
 
 void main() {
+  Intl.defaultLocale = "zh_CN";
   runApp(MyApp());
 }
 
@@ -10,6 +14,16 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      locale: Locale("zh", "CN"),
+      localizationsDelegates: const [
+        GlobalCupertinoLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('zh', 'CN'),
+        Locale('en', 'US'),
+      ],
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -28,6 +42,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   late CalendarController calendarController;
+  final double calendarHeaderHeight = 30.0;
 
   @override
   void initState() {
@@ -35,20 +50,52 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     calendarController = CalendarController();
   }
 
+  Widget _buildDaysOfWeek(MaterialLocalizations localizations) {
+    final List<Widget> widgets = <Widget>[];
+    for (int i = 0;
+        widgets.length < DateTime.daysPerWeek;
+        i = (i + 1) % DateTime.daysPerWeek) {
+      final String weekday = localizations.narrowWeekdays[i];
+      widgets.add(Expanded(
+          child: Center(
+        child: Text(weekday, style: TextStyle(fontSize: 12)),
+      )));
+    }
+    return Container(
+      height: calendarHeaderHeight,
+      color: Colors.white,
+      child: Row(children: widgets),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final MaterialLocalizations localizations =
+        MaterialLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
         title: Text("calendar"),
+        elevation: 2,
       ),
       body: Calendar(
         calendarController: calendarController,
         backgroundColor: Colors.white,
         showSliverPersistentHeader: true,
+        sliverTabBarHeight: calendarHeaderHeight,
+        sliverPersistentHeader: SliverPersistentHeader(
+          pinned: true,
+          delegate: PersistentHeaderDelegateBuilder(
+              max: calendarHeaderHeight,
+              min: calendarHeaderHeight,
+              builder: (context, shrinkOffset, overlapsContent) {
+                return _buildDaysOfWeek(localizations);
+              }),
+        ),
         calendarState: CalendarState.WEEK,
-        calendarStateChangeListener:(state){
-          debugPrint('++++++++++++calendarStateChangeListener:$state,${calendarController.calendarState}');
+        calendarStateChangeListener: (state) {
+          debugPrint(
+              '++++++++++++calendarStateChangeListener:$state,${calendarController.calendarState}');
         },
         onItemClick: (bean) => onItemClick(bean),
         itemBuilder:
