@@ -43,6 +43,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   late CalendarController calendarController;
   final double calendarHeaderHeight = 30.0;
+  ValueNotifier<DateTime> _focusedDayNotifier = ValueNotifier(DateTime.now());
 
   @override
   void initState() {
@@ -73,11 +74,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     final MaterialLocalizations localizations =
         MaterialLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: true,
-        title: Text("calendar"),
-        elevation: 2,
-      ),
+      appBar: _buildAppBar(),
       body: Calendar(
         calendarController: calendarController,
         backgroundColor: Colors.white,
@@ -93,39 +90,23 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
               }),
         ),
         calendarState: CalendarState.WEEK,
-        calendarStateChangeListener: (state) {
-          debugPrint(
-              '++++++++++++calendarStateChangeListener:$state,${calendarController.calendarState}');
-        },
-        onItemClick: (bean) => onItemClick(bean),
-        itemBuilder:
-            (BuildContext context, int index, CalendarItemState bean) =>
-                Container(
-          color: bean.dateTime == CalendarBuilder.selectedDate
-              ? Colors.blue
-              : Colors.white,
-          alignment: Alignment.center,
-          child: Text(
-            "${bean.day}",
-            style: TextStyle(
-                color: bean.isCurrentMonth ? Colors.black : Colors.grey),
-          ),
-        ),
-        //the day will be return -1 when user select day out of current Month
-        // or the pager do not has select day
-        // if you want a user select date then you should move to onItemClick
-        // sliverAppBarBuilder:
-        //     (BuildContext context, int year, int month, int day) =>
-        //         buildAppBar(year, month, day),
-        //to add any widgets
+        calendarStateChangeListener: _onCalendarStateChange,
+        onItemClick: _onCalendarItemClick,
+        itemBuilder: _buildCalendarItem,
         slivers: _buildSlivers(),
       ),
     );
   }
 
-  onItemClick(CalendarItemState bean) {
+  _onCalendarStateChange(CalendarState state) {
+    debugPrint(
+        '++++++++++++calendarStateChangeListener:$state,${calendarController.calendarState}');
+  }
+
+  _onCalendarItemClick(CalendarItemState bean) {
     print(
         "onItemClick: ${bean.dateTime},${bean.isCurrentMonth},${bean.index},${calendarController.calendarState}");
+    _focusedDayNotifier.value=bean.dateTime;
     if (calendarController.calendarState.isMonthView()) {
       print("onItemClick22");
       if (!bean.isCurrentMonth) {
@@ -134,26 +115,30 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     }
   }
 
-  SliverAppBar buildAppBar(int year, int month, int day) {
-    return SliverAppBar(
+  AppBar _buildAppBar() {
+    return AppBar(
       backgroundColor: Colors.white,
-      floating: true,
-      elevation: 0,
-      title: Row(
-        children: [
-          Text(
-            "$year year",
-            style: TextStyle(color: Colors.black),
-          ),
-          Text(
-            "$month month",
-            style: TextStyle(color: Colors.black),
-          ),
-          Text(
-            "$day day",
-            style: TextStyle(color: Colors.black),
-          )
-        ],
+      elevation: 2,
+      centerTitle: true,
+      title: ValueListenableBuilder<DateTime>(
+          valueListenable: _focusedDayNotifier,
+          builder: (context, value, child) {
+            return Text("${value.year}-${value.month}-${value.day}");
+          }),
+    );
+  }
+
+  Widget _buildCalendarItem(
+      BuildContext context, int index, CalendarItemState bean) {
+    return Container(
+      color: bean.dateTime == CalendarBuilder.selectedDate
+          ? Colors.blue
+          : Colors.white,
+      alignment: Alignment.center,
+      child: Text(
+        "${bean.day}",
+        style:
+            TextStyle(color: bean.isCurrentMonth ? Colors.black : Colors.grey),
       ),
     );
   }
