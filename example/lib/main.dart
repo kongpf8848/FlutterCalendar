@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:smart_calendar/calendar.dart';
-import 'package:smart_calendar/calendar_controller.dart';
-import 'package:smart_calendar/calendar_state.dart';
-import 'package:smart_calendar/calendar_builder.dart';
-import 'package:smart_calendar/calendar_item_state.dart';
-import 'package:smart_calendar/delegate/calendar_sticky_delegate.dart';
+import 'package:smart_calendar/smart_calendar.dart';
 
 void main() {
   runApp(MyApp());

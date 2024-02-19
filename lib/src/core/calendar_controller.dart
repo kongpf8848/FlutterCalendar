@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:smart_calendar/delegate/calendar_delegate.dart';
 
-import 'calendar_state.dart';
+import '../../smart_calendar.dart';
 
 
 typedef ChangeDate = Function(DateTime dateTime);

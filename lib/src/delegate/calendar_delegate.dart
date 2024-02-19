@@ -1,5 +1,7 @@
 import 'package:flutter/animation.dart';
-import 'package:smart_calendar/calendar_state.dart';
+
+import '../../smart_calendar.dart';
+
 
 abstract class CalendarDelegate {
   void expand();

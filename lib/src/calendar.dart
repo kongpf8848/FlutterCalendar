@@ -1,12 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:smart_calendar/delegate/calendar_delegate.dart';
 
-import 'calendar_controller.dart';
-import 'calendar_state.dart';
-import 'calendar_builder.dart';
-import 'calendar_item_state.dart';
-import 'calendar_page.dart';
-import 'delegate/calendar_sticky_delegate.dart';
+import '../smart_calendar.dart';
 
 typedef SliverAppBarBuilder = SliverAppBar Function(
     BuildContext context, int year, int month, int day);
