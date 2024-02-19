@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../smart_calendar.dart';
 
-typedef SliverAppBarBuilder = SliverAppBar Function(
-    BuildContext context, int year, int month, int day);
 
 typedef CalendarStateChangeListener = void Function(CalendarState calendarState);
 
@@ -13,7 +11,6 @@ class Calendar extends StatefulWidget {
   final double childAspectRatio;
   final Widget? child;
   final CalendarItemBuilder itemBuilder;
-  final SliverAppBarBuilder? sliverAppBarBuilder;
   final Color backgroundColor;
   final ValueChanged<CalendarItemState>? onItemClick;
   final List<Widget> slivers;
@@ -32,7 +29,6 @@ class Calendar extends StatefulWidget {
     this.calendarStateChangeListener,
     this.backgroundColor = Colors.white,
     required this.itemBuilder,
-    this.sliverAppBarBuilder,
     this.onItemClick,
     this.slivers = const [],
     required this.calendarController,
@@ -206,8 +202,6 @@ class _SmartCalendarState extends State<Calendar> with TickerProviderStateMixin,
         child: CustomScrollView(
           controller: mainController,
           slivers: [
-            if (widget.sliverAppBarBuilder != null)
-              widget.sliverAppBarBuilder!(context, year, month, day),
             if (widget.showSliverPersistentHeader)
               widget.sliverPersistentHeader == null
                   ? _buildSliverPersistentHeader()
