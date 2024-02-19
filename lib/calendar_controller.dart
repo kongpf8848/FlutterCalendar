@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:imba_calendar/calendar_delegate.dart';
+import 'package:smart_calendar/delegate/calendar_delegate.dart';
 
 import 'calendar_state.dart';
 

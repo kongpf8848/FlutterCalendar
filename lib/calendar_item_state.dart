@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 
 import 'calendar_builder.dart';
 
@@ -18,7 +19,9 @@ class CalendarItemState {
     required this.dateTime,
     this.isCurrentMonth = true,
     this.isToday = false,
-  }) : assert(dateTime != null);
+  });
+
+  int get year => dateTime.year;
 
   int get month => dateTime.month;
 

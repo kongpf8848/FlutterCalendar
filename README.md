@@ -1,23 +1,6 @@
 # flutter_calendar
 
-A Flutter Calendar
-
-web demo url https://www.ixiaojin.com/#/
-
-![image](https://github.com/caesar-feng/FlutterCalendar/blob/main/gif/1614422274018151.gif)
-![image](https://github.com/caesar-feng/FlutterCalendar/blob/main/gif/1614422281281666.gif)
-
-![image](https://github.com/caesar-feng/FlutterCalendar/blob/main/gif/1614422292911658.gif)
-![image](https://github.com/caesar-feng/FlutterCalendar/blob/main/gif/1614422292911658%20(1).gif)
-
-![image](https://github.com/caesar-feng/FlutterCalendar/blob/main/gif/1614422424029788.gif)
-
-**Add this to your package's pubspec.yaml file:**
-
-```
-dependencies:
-  imba_calendar: ^0.0.3
-```
+A Smart Calendar for Flutter
 
 ```dart
   @override
@@ -33,8 +16,6 @@ dependencies:
         //by sliverPersistentHeader,if you use is you must tell Calendar
         //the custom SliverPersistentHeader`s height
         showSliverPersistentHeader: true,
-        //if the scroll is not long enough isCalendarExpanded will be invalid
-        isCalendarExpanded: true,
         onItemClick: (bean) => onItemClick(bean),
         itemBuilder:
             (BuildContext context, int index, CalendarItemState bean) =>
