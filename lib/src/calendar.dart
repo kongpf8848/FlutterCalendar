@@ -79,10 +79,6 @@ class _SmartCalendarState extends State<Calendar>
 
   int get year => StartYear + pageIndex ~/ 12;
 
-  late int _day;
-
-  int get day => _day;
-
   //日历总行数
   int get lines => selectItemData.beans.length ~/ HorizontalItemCount;
 
@@ -109,8 +105,6 @@ class _SmartCalendarState extends State<Calendar>
 
     _calendarState = widget.calendarState ?? CalendarState.MONTH;
 
-    _day = now.day;
-
     while (now.weekday != 7) {
       now = now.subtract(Duration(days: 1));
     }
@@ -124,11 +118,6 @@ class _SmartCalendarState extends State<Calendar>
     mainController.addListener(() => _onMainScrolling());
 
     _onItemClick = (v) {
-      if (v.dateTime.month == month && v.dateTime.year == year) {
-        _day = v.day;
-      } else {
-        _day = -1;
-      }
       setState(() {});
       if (widget.onItemClick != null) {
         widget.onItemClick!(v);
@@ -257,23 +246,7 @@ class _SmartCalendarState extends State<Calendar>
       },
     );
   }
-
-  _updateDay(CalendarPagerItemBean bean) {
-    try {
-      List<CalendarItemState> list = bean.beans
-          .where((element) =>
-              element.isCurrentMonth &&
-              element.dateTime == CalendarBuilder.selectedDate)
-          .toList();
-      if (list.length > 0) {
-        _day = list[0].dateTime.day;
-      } else {
-        _day = -1;
-      }
-      setState(() {});
-    } catch (e) {}
-  }
-
+  
   _onWeekPageChange(int i) {
     final bean = CalendarBuilder.buildWeekData(
         shrinkDateTime.add(
@@ -294,7 +267,6 @@ class _SmartCalendarState extends State<Calendar>
     }
 
     pageController.jumpToPage(pageIndex);
-    _updateDay(bean);
 
     try {
       final dateTime = bean.beans[0].dateTime;
@@ -307,7 +279,8 @@ class _SmartCalendarState extends State<Calendar>
 
   _onPageChange(int i) {
     pageIndex = i;
-    _updateDay(selectItemData);
+    debugPrint('+++++++++++++++calendar,_onPageChange,index:$pageIndex,${selectItemData.currentDate},${selectItemData.selectedLine}');
+
     setState(() {});
   }
 
@@ -357,7 +330,6 @@ class _SmartCalendarState extends State<Calendar>
         flexibleSpaceHeight < toolbarHeight * lines) {
       expand();
     }
-    _updateDay(selectItemData);
   }
 
   _onMainScrolling() {
@@ -439,7 +411,6 @@ class _SmartCalendarState extends State<Calendar>
       selectItemData.selectedLine = selectItemData.beans.indexOf(state) ~/ 7;
     } catch (e) {}
     setState(() {});
-    _updateDay(selectItemData);
   }
 
   @override
