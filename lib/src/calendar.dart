@@ -15,7 +15,7 @@ class Calendar extends StatefulWidget {
   final CalendarItemBuilder itemBuilder;
   final SliverAppBarBuilder? sliverAppBarBuilder;
   final Color backgroundColor;
-  final ValueChanged<CalendarItemState> onItemClick;
+  final ValueChanged<CalendarItemState>? onItemClick;
   final List<Widget> slivers;
   final CalendarController calendarController;
   final SliverPersistentHeader? sliverPersistentHeader;
@@ -33,7 +33,7 @@ class Calendar extends StatefulWidget {
     this.backgroundColor = Colors.white,
     required this.itemBuilder,
     this.sliverAppBarBuilder,
-    required this.onItemClick,
+    this.onItemClick,
     this.slivers = const [],
     required this.calendarController,
     this.showSliverPersistentHeader = true,
@@ -142,13 +142,12 @@ class _SmartCalendarState extends State<Calendar> with TickerProviderStateMixin,
       }
       setState(() {});
       if (widget.onItemClick != null) {
-        widget.onItemClick(v);
+        widget.onItemClick!(v);
       }
     };
 
     calendarController = widget.calendarController;
     calendarController.attach(this);
-
 
     if (widget.sliverPersistentHeader != null) {
       sliverTabBarHeight = widget.sliverTabBarHeight!;
@@ -214,8 +213,8 @@ class _SmartCalendarState extends State<Calendar> with TickerProviderStateMixin,
                   ? _buildSliverPersistentHeader()
                   : widget.sliverPersistentHeader!,
             _buildCalendar(),
+            ...widget.slivers
           ]
-            ..addAll(widget.slivers),
         ),
       ),
     );
