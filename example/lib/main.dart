@@ -43,7 +43,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   late CalendarController calendarController;
   final double calendarHeaderHeight = 30.0;
-  ValueNotifier<DateTime> _focusedDayNotifier = ValueNotifier(DateTime.now());
 
   @override
   void initState() {
@@ -90,7 +89,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
               }),
         ),
         calendarState: CalendarState.WEEK,
-        calendarStateChangeListener: _onCalendarStateChange,
+        onStateChanged: _onCalendarStateChange,
         onItemClick: _onCalendarItemClick,
         itemBuilder: _buildCalendarItem,
         slivers: _buildSlivers(),
@@ -104,15 +103,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   }
 
   _onCalendarItemClick(CalendarItemState bean) {
-    print(
-        "onItemClick: ${bean.dateTime},${bean.isCurrentMonth},${bean.index},${calendarController.calendarState}");
-    _focusedDayNotifier.value=bean.dateTime;
-    if (calendarController.calendarState.isMonthView()) {
-      print("onItemClick22");
-      if (!bean.isCurrentMonth) {
-        calendarController.changeToDate(bean.dateTime);
-      }
-    }
+    print("onItemClick: ${bean.dateTime},${bean.isCurrentMonth},${bean.index},${calendarController.calendarState}");
   }
 
   AppBar _buildAppBar() {
@@ -120,10 +111,11 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       backgroundColor: Colors.white,
       elevation: 2,
       centerTitle: true,
-      title: ValueListenableBuilder<DateTime>(
-          valueListenable: _focusedDayNotifier,
+      title: ValueListenableBuilder<DateTime?>(
+          valueListenable: CalendarBuilder.selectedDate,
           builder: (context, value, child) {
-            return Text("${value.year}-${value.month}-${value.day}");
+            var date=value??DateTime.now();
+            return  Text("${date.year}-${date.month}-${date.day}");
           }),
     );
   }
@@ -131,7 +123,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   Widget _buildCalendarItem(
       BuildContext context, int index, CalendarItemState bean) {
     return Container(
-      color: bean.dateTime == CalendarBuilder.selectedDate
+      color: (bean.dateTime == CalendarBuilder.selectedDate.value)
           ? Colors.blue
           : Colors.white,
       alignment: Alignment.center,

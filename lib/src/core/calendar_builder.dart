@@ -1,5 +1,7 @@
 //日历gridItem比例
 
+import 'package:flutter/cupertino.dart';
+
 import 'calendar_page.dart';
 import 'calendar_item_state.dart';
 
@@ -19,7 +21,7 @@ const WeekPageInitialIndex = 5000;
 class CalendarBuilder {
   CalendarBuilder._();
 
-  static DateTime? selectedDate;
+  static ValueNotifier<DateTime?> selectedDate=ValueNotifier(null);
 
   //1900-2100;日历页数
   static final int count = (EndYear - StartYear) * 12;

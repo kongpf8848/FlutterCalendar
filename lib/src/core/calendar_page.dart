@@ -66,7 +66,7 @@ class _CalendarPagerItemState extends State<CalendarPagerItem> {
               onTap: () {
                 setState(() {});
                 CalendarItemState b = beans[index];
-                CalendarBuilder.selectedDate = b.dateTime;
+                CalendarBuilder.selectedDate.value = b.dateTime;
                 if (widget.onItemClick != null) {
                   widget.onItemClick!(b);
                 }

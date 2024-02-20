@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../smart_calendar.dart';
 
-typedef CalendarStateChangeListener = void Function(
-    CalendarState calendarState);
-
 GlobalKey<_SmartCalendarState> calendarKey = GlobalKey();
 
 class Calendar extends StatefulWidget {
@@ -19,17 +16,17 @@ class Calendar extends StatefulWidget {
   final bool showSliverPersistentHeader;
   final double? sliverTabBarHeight;
   final CalendarState? calendarState;
-  final CalendarStateChangeListener? calendarStateChangeListener;
+  final ValueChanged<CalendarState>? onStateChanged;
 
   Calendar({
     Key? key,
     this.childAspectRatio = ChildAspectRatio,
     this.child,
     this.calendarState,
-    this.calendarStateChangeListener,
     this.backgroundColor = Colors.white,
     required this.itemBuilder,
     this.onItemClick,
+    this.onStateChanged,
     this.slivers = const [],
     required this.calendarController,
     this.showSliverPersistentHeader = true,
@@ -99,7 +96,6 @@ class _SmartCalendarState extends State<Calendar>
 
   @override
   void initState() {
-
     DateTime now = DateTime.now();
     pageIndex = CalendarBuilder.dateTimeToIndex(now);
 
@@ -177,7 +173,8 @@ class _SmartCalendarState extends State<Calendar>
           return false;
         },
         child: CustomScrollView(controller: mainController, slivers: [
-          if (widget.showSliverPersistentHeader && widget.sliverPersistentHeader!=null)
+          if (widget.showSliverPersistentHeader &&
+              widget.sliverPersistentHeader != null)
             widget.sliverPersistentHeader!,
           _buildCalendar(),
           ...widget.slivers
@@ -206,7 +203,7 @@ class _SmartCalendarState extends State<Calendar>
           children: [
             PageView.builder(
               controller: pageController,
-              onPageChanged: (i) => _onPageChange(i),
+              onPageChanged: (index) => _onPageChange(index),
               itemBuilder: (c, i) {
                 var bean = _buildItemData(i);
                 selectLine = bean.selectedLine;
@@ -246,7 +243,7 @@ class _SmartCalendarState extends State<Calendar>
       },
     );
   }
-  
+
   _onWeekPageChange(int i) {
     final bean = CalendarBuilder.buildWeekData(
         shrinkDateTime.add(
@@ -255,9 +252,9 @@ class _SmartCalendarState extends State<Calendar>
     late CalendarItemState state;
     try {
       state = bean.beans.firstWhere((element) =>
-          element.dateTime.day == CalendarBuilder.selectedDate?.day &&
-          element.dateTime.month == CalendarBuilder.selectedDate?.month &&
-          element.dateTime.year == CalendarBuilder.selectedDate?.year);
+          element.dateTime.day == CalendarBuilder.selectedDate.value?.day &&
+          element.dateTime.month == CalendarBuilder.selectedDate.value?.month &&
+          element.dateTime.year == CalendarBuilder.selectedDate.value?.year);
     } catch (e) {}
 
     if (state != null) {
@@ -277,10 +274,10 @@ class _SmartCalendarState extends State<Calendar>
     setState(() {});
   }
 
-  _onPageChange(int i) {
-    pageIndex = i;
-    debugPrint('+++++++++++++++calendar,_onPageChange,index:$pageIndex,${selectItemData.currentDate},${selectItemData.selectedLine}');
-
+  _onPageChange(int index) {
+    pageIndex = index;
+    debugPrint(
+        '+++++++++++++++calendar,_onPageChange,index:$pageIndex,$year,$month,${selectItemData.currentDate},${selectItemData.selectedLine}');
     setState(() {});
   }
 
@@ -318,10 +315,10 @@ class _SmartCalendarState extends State<Calendar>
       int index = selectItemData.selectedLine * HorizontalItemCount;
       shrinkDateTime = selectItemData.beans[index].dateTime;
       weekPageController = PageController(initialPage: WeekPageInitialIndex);
-      onCalendarStateChange(CalendarState.WEEK);
+      _onCalendarStateChanged(CalendarState.WEEK);
       setState(() {});
     } else {
-      onCalendarStateChange(CalendarState.MONTH);
+      _onCalendarStateChanged(CalendarState.MONTH);
     }
     if (flexibleSpaceHeight > toolbarHeight + GridVerticalPadding * 2 &&
         flexibleSpaceHeight < toolbarHeight * lines / 2 + GridVerticalPadding) {
@@ -338,7 +335,7 @@ class _SmartCalendarState extends State<Calendar>
             _getExpandHeight(lines - 1) / 2 +
                 kToolbarHeight +
                 sliverTabBarHeight) {
-      onCalendarStateChange(CalendarState.MONTH);
+      _onCalendarStateChanged(CalendarState.MONTH);
       expandedHeight = _getExpandHeight(lines);
       setState(() {});
     }
@@ -377,19 +374,18 @@ class _SmartCalendarState extends State<Calendar>
     }
   }
 
-  onCalendarStateChange(CalendarState state) {
+  _onCalendarStateChanged(CalendarState state) {
     if (_calendarState != state) {
       this._calendarState = state;
-      if (widget.calendarStateChangeListener != null) {
-        widget.calendarStateChangeListener!(state);
-      }
+      widget.onStateChanged?.call(state);
     }
   }
 
   @override
   void changeToDate(DateTime dateTime) {
-    CalendarBuilder.selectedDate =
+    CalendarBuilder.selectedDate.value =
         DateTime(dateTime.year, dateTime.month, dateTime.day);
+
     if (_calendarState.isWeekView()) {
       int num = 0;
       if (dateTime.isBefore(shrinkDateTime)) {
@@ -407,7 +403,7 @@ class _SmartCalendarState extends State<Calendar>
     expandedHeight = _getExpandHeight(lines);
     try {
       final CalendarItemState state = selectItemData.beans.firstWhere(
-          (element) => element.dateTime == CalendarBuilder.selectedDate);
+          (element) => element.dateTime == CalendarBuilder.selectedDate.value);
       selectItemData.selectedLine = selectItemData.beans.indexOf(state) ~/ 7;
     } catch (e) {}
     setState(() {});

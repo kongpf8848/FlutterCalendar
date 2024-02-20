@@ -36,8 +36,8 @@ class CalendarItemState {
           now.month == dateTime.month &&
           now.day == dateTime.day;
     }
-    if (isToday && CalendarBuilder.selectedDate == null) {
-      CalendarBuilder.selectedDate = dateTime;
+    if (isToday && CalendarBuilder.selectedDate.value == null) {
+      CalendarBuilder.selectedDate.value = dateTime;
     }
     final bean = CalendarItemState(
       dateTime: dateTime,
