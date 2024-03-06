@@ -4,7 +4,7 @@ import '../smart_calendar.dart';
 
 GlobalKey<_SmartCalendarState> calendarKey = GlobalKey();
 
-class Calendar extends StatefulWidget {
+class SmartCalendar extends StatefulWidget {
   final double childAspectRatio;
   final Widget? child;
   final CalendarItemBuilder itemBuilder;
@@ -18,7 +18,7 @@ class Calendar extends StatefulWidget {
   final CalendarState? calendarState;
   final ValueChanged<CalendarState>? onStateChanged;
 
-  Calendar({
+  SmartCalendar({
     Key? key,
     this.childAspectRatio = ChildAspectRatio,
     this.child,
@@ -37,10 +37,10 @@ class Calendar extends StatefulWidget {
         super(key: key);
 
   @override
-  State<Calendar> createState() => _SmartCalendarState();
+  State<SmartCalendar> createState() => _SmartCalendarState();
 }
 
-class _SmartCalendarState extends State<Calendar>
+class _SmartCalendarState extends State<SmartCalendar>
     with TickerProviderStateMixin, CalendarDelegate {
   late double toolbarHeight;
   double? screenSize;
@@ -141,7 +141,7 @@ class _SmartCalendarState extends State<Calendar>
   }
 
   @override
-  void didUpdateWidget(Calendar oldWidget) {
+  void didUpdateWidget(SmartCalendar oldWidget) {
     super.didUpdateWidget(oldWidget);
   }
 

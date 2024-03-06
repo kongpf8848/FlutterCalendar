@@ -6,4 +6,4 @@ export 'src/core/calendar_page.dart';
 export 'src/core/calendar_state.dart';
 export 'src/delegate/calendar_delegate.dart';
 export 'src/delegate/calendar_sticky_delegate.dart';
-export 'src/calendar.dart';
+export 'src/smart_calendar.dart';

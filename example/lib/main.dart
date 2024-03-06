@@ -74,7 +74,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         MaterialLocalizations.of(context);
     return Scaffold(
       appBar: _buildAppBar(),
-      body: Calendar(
+      body: SmartCalendar(
         calendarController: calendarController,
         backgroundColor: Colors.white,
         showSliverPersistentHeader: true,
