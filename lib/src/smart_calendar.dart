@@ -6,24 +6,17 @@ GlobalKey<_SmartCalendarState> calendarKey = GlobalKey();
 
 class SmartCalendar extends StatefulWidget {
   final double childAspectRatio;
-  final Widget? child;
   final CalendarItemBuilder itemBuilder;
   final Color backgroundColor;
   final ValueChanged<CalendarItem>? onItemClick;
   final List<Widget> slivers;
   final CalendarController calendarController;
   final SliverPersistentHeader? sliverPersistentHeader;
-  final bool showSliverPersistentHeader;
-  final double? sliverTabBarHeight;
-  final CalendarState? calendarState;
-  final ValueChanged<CalendarState>? onStateChanged;
-
   SmartCalendar({
     Key? key,
-    this.childAspectRatio = ChildAspectRatio,
-    this.child,
-    this.calendarState,
     this.backgroundColor = Colors.white,
+    this.childAspectRatio = ChildAspectRatio,
+    this.calendarState,
     required this.itemBuilder,
     this.onItemClick,
     this.onStateChanged,
@@ -35,6 +28,11 @@ class SmartCalendar extends StatefulWidget {
   })  : assert((sliverPersistentHeader != null && sliverTabBarHeight != null) ||
             (sliverPersistentHeader == null && sliverTabBarHeight == null)),
         super(key: key);
+  final bool showSliverPersistentHeader;
+  final double? sliverTabBarHeight;
+  final CalendarState? calendarState;
+
+  final ValueChanged<CalendarState>? onStateChanged;
 
   @override
   State<SmartCalendar> createState() => _SmartCalendarState();
@@ -47,7 +45,7 @@ class _SmartCalendarState extends State<SmartCalendar>
 
   ScrollController mainController = ScrollController();
   ScrollController gridController = ScrollController();
-  late PageController pageController;
+  late PageController monthPageController;
   late PageController weekPageController;
   late CalendarController calendarController;
 
@@ -108,16 +106,14 @@ class _SmartCalendarState extends State<SmartCalendar>
 
     lockingPageIndex = pageIndex;
 
-    pageController = PageController(initialPage: pageIndex);
+    monthPageController = PageController(initialPage: pageIndex);
     weekPageController = PageController(initialPage: WeekPageInitialIndex);
-    pageController.addListener(() => _onPageScrolling());
+    monthPageController.addListener(() => _onPageScrolling());
     mainController.addListener(() => _onMainScrolling());
 
     _onItemClick = (v) {
       setState(() {});
-      if (widget.onItemClick != null) {
-        widget.onItemClick!(v);
-      }
+      widget.onItemClick?.call(v);
     };
 
     calendarController = widget.calendarController;
@@ -202,7 +198,7 @@ class _SmartCalendarState extends State<SmartCalendar>
         return Stack(
           children: [
             PageView.builder(
-              controller: pageController,
+              controller: monthPageController,
               onPageChanged: (index) => _onPageChange(index),
               itemBuilder: (c, i) {
                 var bean = _buildItemData(i);
@@ -263,7 +259,7 @@ class _SmartCalendarState extends State<SmartCalendar>
       pageIndex = bean.index;
     }
 
-    pageController.jumpToPage(pageIndex);
+    monthPageController.jumpToPage(pageIndex);
 
     try {
       final dateTime = bean.beans[0].dateTime;
@@ -347,7 +343,7 @@ class _SmartCalendarState extends State<SmartCalendar>
     }
 
     isHorizontalScroll = true;
-    final move = pageController.offset;
+    final move = monthPageController.offset;
     final pageOffset = lockingPageIndex * (screenSize ?? 0);
     int offset;
     //左滑
@@ -399,7 +395,7 @@ class _SmartCalendarState extends State<SmartCalendar>
 
     // if (isCalendarExpanded) {
     pageIndex = CalendarBuilder.dateTimeToIndex(dateTime);
-    pageController.jumpToPage(pageIndex);
+    monthPageController.jumpToPage(pageIndex);
     expandedHeight = _getExpandHeight(lines);
     try {
       final CalendarItem state = selectItemData.beans.firstWhere(

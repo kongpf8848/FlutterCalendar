@@ -52,10 +52,9 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
   Widget _buildDaysOfWeek(MaterialLocalizations localizations) {
     final List<Widget> widgets = <Widget>[];
-    for (int i = 0;
-        widgets.length < DateTime.daysPerWeek;
-        i++) {
-      final String weekday = localizations.narrowWeekdays[(i + 1) % DateTime.daysPerWeek];
+    for (int i = 0; widgets.length < DateTime.daysPerWeek; i++) {
+      final String weekday =
+          localizations.narrowWeekdays[(i + 1) % DateTime.daysPerWeek];
       widgets.add(Expanded(
           child: Center(
         child: Text(weekday, style: TextStyle(fontSize: 12)),
@@ -73,28 +72,34 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     final MaterialLocalizations localizations =
         MaterialLocalizations.of(context);
     return Scaffold(
-      appBar: _buildAppBar(),
-      body: SmartCalendar(
-        calendarController: calendarController,
-        backgroundColor: Colors.white,
-        showSliverPersistentHeader: true,
-        sliverTabBarHeight: calendarHeaderHeight,
-        sliverPersistentHeader: SliverPersistentHeader(
-          pinned: true,
-          delegate: PersistentHeaderDelegateBuilder(
-              max: calendarHeaderHeight,
-              min: calendarHeaderHeight,
-              builder: (context, shrinkOffset, overlapsContent) {
-                return _buildDaysOfWeek(localizations);
-              }),
-        ),
-        calendarState: CalendarState.WEEK,
-        onStateChanged: _onCalendarStateChange,
-        onItemClick: _onCalendarItemClick,
-        itemBuilder: _buildCalendarItem,
-        slivers: _buildSlivers(),
-      ),
-    );
+        appBar: _buildAppBar(),
+        body: Column(
+          children: [
+            _buildDaysOfWeek(localizations),
+            Expanded(
+              child: SmartCalendar(
+                backgroundColor: Colors.white,
+                calendarController: calendarController,
+                showSliverPersistentHeader: false,
+                sliverTabBarHeight: calendarHeaderHeight,
+                sliverPersistentHeader: SliverPersistentHeader(
+                  pinned: true,
+                  delegate: PersistentHeaderDelegateBuilder(
+                      max: calendarHeaderHeight,
+                      min: calendarHeaderHeight,
+                      builder: (context, shrinkOffset, overlapsContent) {
+                        return _buildDaysOfWeek(localizations);
+                      }),
+                ),
+                calendarState: CalendarState.WEEK,
+                onStateChanged: _onCalendarStateChange,
+                onItemClick: _onCalendarItemClick,
+                itemBuilder: _buildCalendarItem,
+                slivers: _buildSlivers(),
+              ),
+            )
+          ],
+        ));
   }
 
   _onCalendarStateChange(CalendarState state) {
@@ -103,7 +108,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   }
 
   _onCalendarItemClick(CalendarItem bean) {
-    print("onItemClick: ${bean.dateTime},${bean.isCurrentMonth},${bean.index},${calendarController.calendarState}");
+    print(
+        "onItemClick: ${bean.dateTime},${bean.isCurrentMonth},${bean.index},${calendarController.calendarState}");
   }
 
   AppBar _buildAppBar() {
@@ -114,8 +120,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       title: ValueListenableBuilder<DateTime?>(
           valueListenable: CalendarBuilder.selectedDate,
           builder: (context, value, child) {
-            var date=value??DateTime.now();
-            return  Text("${date.year}-${date.month}-${date.day}");
+            var date = value ?? DateTime.now();
+            return Text("${date.year}-${date.month}-${date.day}");
           }),
     );
   }
@@ -134,6 +140,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       ),
     );
   }
+
+
 
   List<Widget> _buildSlivers() {
     return [
