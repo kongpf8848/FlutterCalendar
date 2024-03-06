@@ -1,9 +1,10 @@
 //日历gridItem比例
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 import 'calendar_page.dart';
-import 'calendar_item_state.dart';
+import 'calendar_item.dart';
 
 const double ChildAspectRatio = 152 / 220;
 const int HorizontalItemCount = 7;
@@ -32,7 +33,7 @@ class CalendarBuilder {
 
   static CalendarBuilder get instance => _getInstance();
 
-  static OnClick<CalendarPagerItemBean, CalendarItemState> onClick =
+  static OnClick<CalendarPagerItemBean, CalendarItem> onClick =
       (pageBean, gridBean) {
     int selectLine = gridBean.index ~/ HorizontalItemCount;
     pageBean.selectedLine = selectLine;
@@ -65,11 +66,11 @@ class CalendarBuilder {
 
   static CalendarPagerItemBean buildWeekData(DateTime startDate,
       DateTime currentDate) {
-    List<CalendarItemState> beans = [];
-    CalendarItemState? _bean;
+    List<CalendarItem> beans = [];
+    CalendarItem? _bean;
     int index = dateTimeToIndex(startDate);
     for (int i = 0; i < HorizontalItemCount; i++) {
-      CalendarItemState b = CalendarItemState.build(startDate,
+      CalendarItem b = CalendarItem.build(startDate,
           day: startDate.day,
           isCurrentMonth: startDate.month == currentDate.month);
       if (b.isToday) {
@@ -79,7 +80,7 @@ class CalendarBuilder {
       startDate = startDate.add(Duration(days: 1));
     }
 
-    List<CalendarItemState> week =
+    List<CalendarItem> week =
     beans.where((element) => !element.isCurrentMonth).toList();
     if (week.length == HorizontalItemCount) {
       beans.forEach((element) {
@@ -109,13 +110,14 @@ class CalendarBuilder {
 
   static CalendarPagerItemBean _buildData(int index,
       DateTime dateTime,) {
-    List<CalendarItemState> beans = [];
-    final days = DateTime(dateTime.year, dateTime.month + 1, 0).day;
+    List<CalendarItem> beans = [];
+    final days = DateUtils.getDaysInMonth(dateTime.year, dateTime.month);
     DateTime startWeekDay = DateTime(dateTime.year, dateTime.month, 1);
     DateTime endWeekDay = DateTime(dateTime.year, dateTime.month, days);
-    CalendarItemState? _bean;
+    debugPrint('++++++++++++++calendarbuilddata,index:$index,dateTime:$dateTime,days:${days},startWeekDay:${startWeekDay},endWeekDay:${endWeekDay}');
+    CalendarItem? _bean;
     for (int i = 1; i <= days; i++) {
-      CalendarItemState b = CalendarItemState.build(
+      CalendarItem b = CalendarItem.build(
         dateTime,
         day: i,
       );
@@ -125,14 +127,14 @@ class CalendarBuilder {
       beans.add(b);
     }
 
-    while (startWeekDay.weekday != 7) {
+    while (startWeekDay.weekday != 1) {
       startWeekDay = startWeekDay.subtract(Duration(days: 1));
       beans.insert(
-          0, CalendarItemState.build(startWeekDay, isCurrentMonth: false));
+          0, CalendarItem.build(startWeekDay, isCurrentMonth: false));
     }
-    while (endWeekDay.weekday != 6) {
+    while (endWeekDay.weekday != 7) {
       endWeekDay = endWeekDay.add(Duration(days: 1));
-      beans.add(CalendarItemState.build(endWeekDay, isCurrentMonth: false));
+      beans.add(CalendarItem.build(endWeekDay, isCurrentMonth: false));
     }
 
     final len = beans.length;

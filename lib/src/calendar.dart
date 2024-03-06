@@ -9,7 +9,7 @@ class Calendar extends StatefulWidget {
   final Widget? child;
   final CalendarItemBuilder itemBuilder;
   final Color backgroundColor;
-  final ValueChanged<CalendarItemState>? onItemClick;
+  final ValueChanged<CalendarItem>? onItemClick;
   final List<Widget> slivers;
   final CalendarController calendarController;
   final SliverPersistentHeader? sliverPersistentHeader;
@@ -82,7 +82,7 @@ class _SmartCalendarState extends State<Calendar>
   //收起时的时间
   late DateTime shrinkDateTime;
 
-  ValueChanged<CalendarItemState>? _onItemClick;
+  ValueChanged<CalendarItem>? _onItemClick;
 
   double sliverTabBarHeight = SliverTabBarHeight;
 
@@ -249,7 +249,7 @@ class _SmartCalendarState extends State<Calendar>
         shrinkDateTime.add(
             Duration(days: HorizontalItemCount * (i - WeekPageInitialIndex))),
         selectItemData.currentDate!);
-    late CalendarItemState state;
+    late CalendarItem state;
     try {
       state = bean.beans.firstWhere((element) =>
           element.dateTime.day == CalendarBuilder.selectedDate.value?.day &&
@@ -267,7 +267,7 @@ class _SmartCalendarState extends State<Calendar>
 
     try {
       final dateTime = bean.beans[0].dateTime;
-      CalendarItemState list = selectItemData.beans
+      CalendarItem list = selectItemData.beans
           .firstWhere((element) => element.dateTime == dateTime);
       selectItemData.selectedLine = list.index ~/ HorizontalItemCount;
     } catch (e) {}
@@ -402,7 +402,7 @@ class _SmartCalendarState extends State<Calendar>
     pageController.jumpToPage(pageIndex);
     expandedHeight = _getExpandHeight(lines);
     try {
-      final CalendarItemState state = selectItemData.beans.firstWhere(
+      final CalendarItem state = selectItemData.beans.firstWhere(
           (element) => element.dateTime == CalendarBuilder.selectedDate.value);
       selectItemData.selectedLine = selectItemData.beans.indexOf(state) ~/ 7;
     } catch (e) {}

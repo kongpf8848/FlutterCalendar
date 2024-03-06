@@ -1,7 +1,7 @@
 
 import 'calendar_builder.dart';
 
-class CalendarItemState {
+class CalendarItem {
   //所在日期
   final DateTime dateTime;
 
@@ -14,7 +14,7 @@ class CalendarItemState {
   //所在集合中的角标
   int index = -1;
 
-  CalendarItemState({
+  CalendarItem({
     required this.dateTime,
     this.isCurrentMonth = true,
     this.isToday = false,
@@ -26,7 +26,7 @@ class CalendarItemState {
 
   int get day => dateTime.day;
 
-  static CalendarItemState build(DateTime dateTime,
+  static CalendarItem build(DateTime dateTime,
       {int? day, bool isCurrentMonth = true}) {
     bool isToday = false;
     if (day != null) {
@@ -39,7 +39,7 @@ class CalendarItemState {
     if (isToday && CalendarBuilder.selectedDate.value == null) {
       CalendarBuilder.selectedDate.value = dateTime;
     }
-    final bean = CalendarItemState(
+    final bean = CalendarItem(
       dateTime: dateTime,
       isToday: isToday,
       isCurrentMonth: isCurrentMonth,

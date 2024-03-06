@@ -54,8 +54,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     final List<Widget> widgets = <Widget>[];
     for (int i = 0;
         widgets.length < DateTime.daysPerWeek;
-        i = (i + 1) % DateTime.daysPerWeek) {
-      final String weekday = localizations.narrowWeekdays[i];
+        i++) {
+      final String weekday = localizations.narrowWeekdays[(i + 1) % DateTime.daysPerWeek];
       widgets.add(Expanded(
           child: Center(
         child: Text(weekday, style: TextStyle(fontSize: 12)),
@@ -102,7 +102,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         '++++++++++++calendarStateChangeListener:$state,${calendarController.calendarState}');
   }
 
-  _onCalendarItemClick(CalendarItemState bean) {
+  _onCalendarItemClick(CalendarItem bean) {
     print("onItemClick: ${bean.dateTime},${bean.isCurrentMonth},${bean.index},${calendarController.calendarState}");
   }
 
@@ -121,7 +121,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   }
 
   Widget _buildCalendarItem(
-      BuildContext context, int index, CalendarItemState bean) {
+      BuildContext context, int index, CalendarItem bean) {
     return Container(
       color: (bean.dateTime == CalendarBuilder.selectedDate.value)
           ? Colors.blue

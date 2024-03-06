@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 import 'calendar_builder.dart';
-import 'calendar_item_state.dart';
+import 'calendar_item.dart';
 
 typedef CalendarItemBuilder = Widget Function(
-    BuildContext context, int index, CalendarItemState bean);
+    BuildContext context, int index, CalendarItem bean);
 
 class CalendarPagerItem extends StatefulWidget {
   final CalendarPagerItemBean bean;
@@ -12,7 +12,7 @@ class CalendarPagerItem extends StatefulWidget {
   final ScrollController? controller;
   final CalendarItemBuilder itemBuilder;
   final Color backgroundColor;
-  final ValueChanged<CalendarItemState>? onItemClick;
+  final ValueChanged<CalendarItem>? onItemClick;
 
   const CalendarPagerItem({Key? key,
     required this.itemBuilder,
@@ -30,7 +30,7 @@ class CalendarPagerItem extends StatefulWidget {
 }
 
 class _CalendarPagerItemState extends State<CalendarPagerItem> {
-  List<CalendarItemState> beans = [];
+  List<CalendarItem> beans = [];
   late CalendarPagerItemBean bean;
   bool init = true;
   final CalendarItemBuilder itemBuilder;
@@ -65,7 +65,7 @@ class _CalendarPagerItemState extends State<CalendarPagerItem> {
               child: itemBuilder(c, index, beans[index]),
               onTap: () {
                 setState(() {});
-                CalendarItemState b = beans[index];
+                CalendarItem b = beans[index];
                 CalendarBuilder.selectedDate.value = b.dateTime;
                 if (widget.onItemClick != null) {
                   widget.onItemClick!(b);
@@ -84,13 +84,13 @@ class _CalendarPagerItemState extends State<CalendarPagerItem> {
 typedef OnClick<T, E> = void Function(T t, E v);
 
 class CalendarPagerItemBean {
-  final OnClick<CalendarPagerItemBean, CalendarItemState>? onClick;
+  final OnClick<CalendarPagerItemBean, CalendarItem>? onClick;
 
   // 默认-1 表示不存在
   final int todayIndex;
   int selectedLine = 0;
   final int index;
-  final List<CalendarItemState> beans;
+  final List<CalendarItem> beans;
   final DateTime? currentDate;
 
   CalendarPagerItemBean({
